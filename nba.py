@@ -2,6 +2,9 @@ import time
 import urllib
 import urllib.request
 from bs4 import BeautifulSoup
+from time import sleep
+from selenium import webdriver
+
 def monthAfter(month):
     if month=='January':
         return 'February'
@@ -34,8 +37,12 @@ month=time.strftime('%B')
 day=time.strftime('%d')
 file = open('today\'s nba games','w')
 link='http://www.espn.com/nba/schedule/_/date/'+date
-r = urllib.request.urlopen(link)
-soup = BeautifulSoup(r, 'html.parser')
+browser=webdriver.PhantomJS('./phantomjs.exe')
+browser.get(link)
+html=browser.page_source
+browser.close()
+#r = urllib.request.urlopen(link)
+soup = BeautifulSoup(html, 'html.parser')
 startscraping=False
 for stuff in soup.find('div',{'id':'sched-container'}):
     if month+' '+str(int(day)+1) in stuff.text or monthAfter(month)+' 1' in stuff.text:
@@ -55,8 +62,11 @@ for stuff in soup.find('div',{'id':'sched-container'}):
                 try:
                     visitor = row.find_all('a',{'class':'team-name'})[0].find('span').text
                     home = row.find_all('a',{'class':'team-name'})[1].find('span').text
-                    time = row.find('td',{'class':'live'}).text
-                    file.write('{} vs {} Playing at {}\n'.format(visitor,home,time))
+                    if not row.find('td',{'class':'live'})==None:
+                        file.write('{} vs {} Playing at right now!\n'.format(visitor,home))
+                    else:
+                        time = row.find('a',{'name':'&lpos=nba:schedule:time'}).text
+                        file.write('{} vs {} Playing at {}\n'.format(visitor,home,time))
                 except:
                     pass
             if resultstable:
