@@ -1,6 +1,7 @@
 import time
 import urllib
 import urllib.request
+import platform
 from bs4 import BeautifulSoup
 from time import sleep
 from selenium import webdriver
@@ -37,7 +38,12 @@ month=time.strftime('%B')
 day=time.strftime('%d')
 file = open('today\'s nba games','w')
 link='http://www.espn.com/nba/schedule/_/date/'+date
-browser=webdriver.PhantomJS('./phantomjs.exe')
+if platform.system()=='Windows':
+    browser=webdriver.PhantomJS('./phantomjs.exe')
+elif platform.system()=='Linux':
+    browser=webdriver.PhantomJS('./phantomjs')
+else:
+    browser=webdriver.PhantomJS('./phantomjsmac')
 browser.get(link)
 html=browser.page_source
 browser.close()
@@ -66,7 +72,7 @@ for stuff in soup.find('div',{'id':'sched-container'}):
                         file.write('{} vs {} Playing at right now!\n'.format(visitor,home))
                     else:
                         time = row.find('a',{'name':'&lpos=nba:schedule:time'}).text
-                        file.write('{} vs {} Playing at {}\n'.format(visitor,home,time))
+                        file.write('{} vs {} Playing {}\n'.format(visitor,home,time))
                 except:
                     pass
             if resultstable:
