@@ -36,18 +36,17 @@ def monthAfter(month):
 date=time.strftime('%Y%m%d')
 month=time.strftime('%B')
 day=time.strftime('%d')
-file = open('today\'s nba games','w')
+file = open('todays_nba_games','w')
 link='http://www.espn.com/nba/schedule/_/date/'+date
 if platform.system()=='Windows':
     browser=webdriver.PhantomJS('./phantomjs.exe')
-elif platform.system()=='Linux':
-    browser=webdriver.PhantomJS('./phantomjs')
-else:
+elif platform.system()=='darwin':
     browser=webdriver.PhantomJS('./phantomjsmac')
+else:
+    browser=webdriver.PhantomJS('./phantomjs')
 browser.get(link)
 html=browser.page_source
 browser.close()
-#r = urllib.request.urlopen(link)
 soup = BeautifulSoup(html, 'html.parser')
 startscraping=False
 for stuff in soup.find('div',{'id':'sched-container'}):
@@ -83,7 +82,7 @@ for stuff in soup.find('div',{'id':'sched-container'}):
                     file.write('{} vs {} - {}\n'.format(visitor,home,score))
                 except:
                     pass
-    if '{} {}'.format(month,day) in stuff.text:
+    if '{} {}'.format(month,str(int(day))) in stuff.text:
         startscraping=True
 
     
